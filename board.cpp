@@ -36,15 +36,16 @@ Board::Board(){
 }
 
 void Board::Print(){
-    cout << " ------------------------" << endl;
+    cout << "    0  1  2  3  4  5  6  7" << endl;
+    cout << "   ------------------------" << endl;
     for(int i = 0; i < BOARDSIZE; i++){
-        cout << "|";
+        cout << (int)i << " |";
         for(int j = 0; j < BOARDSIZE; j++){
-            printf(" %d ",board[i][j]); //TODO: add color
+            cout << " " << (int)board[i][j] << " ";//TODO: add color
         }
         cout << "|" << endl;
     }
-    cout << " ------------------------" << endl;
+    cout << "   ------------------------" << endl;
 }
 
 bool Board::onBoard(char y, char x){
