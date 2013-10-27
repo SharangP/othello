@@ -1,5 +1,8 @@
 CC = g++
 
+debug: CC += -g
+debug: othello
+
 othello: othello.o board.o
 	$(CC) -o othello othello.o board.o
 
@@ -10,4 +13,4 @@ board.o: board.cpp board.h
 	$(CC) -c board.cpp
 
 clean:
-	rm *.o
+	rm *.o *.stackdump *~
