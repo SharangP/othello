@@ -1,4 +1,4 @@
 othello
 =======
 
-An Othello AI written in Python
+An Othello AI written in C++
