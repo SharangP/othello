@@ -31,10 +31,12 @@ public:
     };
 
     Board();
+    Board(char boardState[8][8], char currentPlayer);
     void Print();
-    vector<Board::Move> LegalMoves(const char player);
+    vector<Board::Move> LegalMoves();
     void ApplyMove(Board::Move move);
     char board[BOARDSIZE][BOARDSIZE];
+    char currentPlayer;
 
 private:
     bool onBoard(const char y, const char x);

@@ -11,8 +11,8 @@
 #include "const.h"
 #include "board.h"
 
-
 using namespace std;
+
 
 const char iterateModes[4] = {1, 2, 3, 4};
 const char iterateDirections[2] = {-1, 1};
@@ -44,6 +44,17 @@ Board::Board(){
     board[3][4] = WHITE;
     board[3][3] = BLACK;
     board[4][4] = BLACK;
+
+    currentPlayer = BLACK;
+}
+
+Board::Board(char boardState[8][8], char currentPlayer){
+    for(int i = 0; i < BOARDSIZE; i++){
+        for(int j = 0; j < BOARDSIZE; j++){
+            board[i][j] = boardState[i][j];
+        }
+    }
+    this->currentPlayer = currentPlayer;
 }
 
 void Board::Print(){
@@ -97,7 +108,8 @@ bool Board::iterate(char &y, char &x, const char mode, const char direction){
     }
 }
 
-vector<Board::Move> Board::LegalMoves(const char player){
+vector<Board::Move> Board::LegalMoves(){
+    const char player = currentPlayer;
     vector<Board::Move> moves;
 
     for(int i = 0; i < BOARDSIZE; i++){
@@ -141,6 +153,9 @@ void Board::ApplyMove(Board::Move move){
     board[move.square.y][move.square.x] = move.player;
     for(int i = 0; i < move.flips.size(); i++)
         board[move.flips[i].y][move.flips[i].x] = move.player;
+    currentPlayer = (currentPlayer == WHITE)
+        ? BLACK
+        : WHITE;
 }
 
 #endif
