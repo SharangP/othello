@@ -9,7 +9,7 @@ othello: othello.o board.o
 othello.o: othello.cpp board.h
 	$(CC) -c othello.cpp
 
-board.o: board.cpp board.h macros.h
+board.o: board.cpp board.h const.h
 	$(CC) -c board.cpp
 
 clean:

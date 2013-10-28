@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
-#include "macros.h"
+#include "const.h"
 #include "board.h"
 
 

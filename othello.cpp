@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include "board.h"
-#include "macros.h"
+#include "const.h"
 
 using namespace std;
 
