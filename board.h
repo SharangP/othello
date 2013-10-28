@@ -13,16 +13,28 @@ using namespace std;
 
 class Board{
 public:
-    class Move{
-        Move(char player, char y, char x);
-        char player, x, y;
+    class Square{
+    public:
+        Square();
+        Square(char y, char x);
+        char x, y;
     };
+
+    class Move{
+    public:
+        Move(char player, char y, char x);
+        Board::Square square;
+        char player;
+        bool valid;
+        vector<Square> flips;
+    };
+
     Board();
     void Print();
-    vector<Board::Move> LegalMoves(char player);
+    vector<Board::Move> LegalMoves(const char player);
     char board[BOARDSIZE][BOARDSIZE];
 private:
-    bool onBoard(char y, char x);
+    bool onBoard(const char y, const char x);
     bool iterate(char &y, char &x, const char mode, const char direction);
 };
 

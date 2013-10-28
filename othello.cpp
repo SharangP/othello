@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include "board.h"
+#include "macros.h"
 
 using namespace std;
 
@@ -17,4 +18,7 @@ int main(int argc, char *argv[]){
     cout << "here we go" << endl;
     Board *b = new Board();
     b->Print();
+    vector<Board::Move> m = b->LegalMoves(WHITE);
+    for(int i = 0; i < m.size(); i++)
+        cout << i << ": [" << (int)m[i].square.y << "," << (int)m[i].square.x << "]" << endl;
 }

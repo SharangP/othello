@@ -14,10 +14,21 @@
 
 using namespace std;
 
-Board::Move::Move(char player, char y, char x){
-    this->player = player;
+const char iterateModes[4] = {1, 2, 3, 4};
+const char iterateDirections[2] = {-1, 1};
+
+Board::Square::Square(){}
+
+Board::Square::Square(char y, char x){
     this->y = y;
     this->x = x;
+}
+
+Board::Move::Move(char player, char y, char x){
+    this->player = player;
+    this->square.y = y;
+    this->square.x = x;
+    this->valid = false;
 }
 
 Board::Board(){
@@ -48,7 +59,7 @@ void Board::Print(){
     cout << "   ------------------------" << endl;
 }
 
-bool Board::onBoard(char y, char x){
+bool Board::onBoard(const char y, const char x){
     return (x >= 0) && (x < BOARDSIZE) && (y >= 0) && (y < BOARDSIZE);
 }
 
@@ -62,7 +73,8 @@ bool Board::onBoard(char y, char x){
 //  +1
 //  -1
 bool Board::iterate(char &y, char &x, const char mode, const char direction){
-    if((direction != 1) || (direction != -1))
+
+    if((direction != 1) && (direction != -1))
         return false;
 
     switch(mode){
@@ -85,25 +97,41 @@ bool Board::iterate(char &y, char &x, const char mode, const char direction){
     }
 }
 
-vector<Board::Move> Board::LegalMoves(char player){
+vector<Board::Move> Board::LegalMoves(const char player){
     vector<Board::Move> moves;
+
     for(int i = 0; i < BOARDSIZE; i++){
         for(int j = 0; j < BOARDSIZE; j++){
             if(board[i][j] == 0){
-                bool valid = false;
-                //find next player piece in row/col/diag
-                //if opponent in between then legal (what about spaces)
-                //
-                //while opponents pieces, ++, if own piece found, valid 
-                //
-                //check horizontal
-                for(int n = j; (n < BOARDSIZE) && (n != 0); n++){
-                    
+
+                Board::Move move(player, i, j);
+
+                for(int n = 0; n < sizeof(iterateModes); n++){
+                    char mode = iterateModes[n];
+                    for(int m = 0; m < sizeof(iterateDirections); m++){
+                        char direction = iterateDirections[m];
+                        char y = move.square.y, x = move.square.x;
+                        vector<Board::Square> trace;
+
+                        iterate(y, x, mode, direction);
+
+                        //not a valid direction unless opponent's piece is next
+                        if((board[y][x] == player) || (board[y][x] == 0)){
+                            continue;
+                        }
+
+                        for(y, x; onBoard(y, x); iterate(y, x, mode, direction)){
+                            trace.push_back(Board::Square(y, x)); //keep track of potential flips
+                            if(board[y][x] == player){
+                                //mark move as valid and append trace to flips vector
+                                move.valid = true;
+                                move.flips.insert(move.flips.end(), trace.begin(), trace.end());                            }
+                        }
+                    }
                 }
-                //check vertical
-                //check right diag
-                //check left diag
-            };
+                if(move.valid)
+                    moves.push_back(move);
+            }
         }
     }
 
