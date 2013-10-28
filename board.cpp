@@ -52,7 +52,7 @@ void Board::Print(){
     for(int i = 0; i < BOARDSIZE; i++){
         cout << (int)i << " |";
         for(int j = 0; j < BOARDSIZE; j++){
-            cout << " " << (int)board[i][j] << " ";//TODO: add color
+            cout << " " << (int)board[i][j] << " "; //TODO: add color
         }
         cout << "|" << endl;
     }
@@ -134,8 +134,13 @@ vector<Board::Move> Board::LegalMoves(const char player){
             }
         }
     }
-
     return moves;
+}
+
+void Board::ApplyMove(Board::Move move){
+    board[move.square.y][move.square.x] = move.player;
+    for(int i = 0; i < move.flips.size(); i++)
+        board[move.flips[i].y][move.flips[i].x] = move.player;
 }
 
 #endif
