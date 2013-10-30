@@ -89,24 +89,30 @@ Game::Game(int gameType){
     }
 }
 
-void Game::randomMove(){
+
+// returns false if game over
+bool Game::randomMove(){
     vector<Board::Move> moves = board.LegalMoves();
-    if(moves.size())
-        board.ApplyMove(moves[rand() % moves.size()]);
+    bool numMoves = moves.size() > 0;
+    if(!board.NextPlayer(numMoves))
+        return false;
+    board.ApplyMove(moves[rand() % moves.size()]);
+    return true;
 }
 
 void Game::Start(){
-//    while(!board.EndState()){
-//        int movenum = 0;
-//        vector<Board::Move> m = b->LegalMoves(WHITE);
-//        for(int i = 0; i < m.size(); i++)
-//            cout << i << ": [" << (int)m[i].square.y << "," << (int)m[i].square.x << "]" << endl;
-//        cout << "choose a move: ";
-//        cin >> movenum;
-//        b->ApplyMove(m[movenum]);
-//        b->Print();
-//    }
-//    cout << "Game Over..." << endl;
+    //based on case, make computer move.
+    while(!board.EndState()){
+        int movenum = 0;
+        vector<Board::Move> m = b->LegalMoves(WHITE);
+        for(int i = 0; i < m.size(); i++)
+            cout << i << ": [" << (int)m[i].square.y << "," << (int)m[i].square.x << "]" << endl;
+        cout << "choose a move: ";
+        cin >> movenum;
+        b->ApplyMove(m[movenum]);
+        b->Print();
+    }
+    cout << "Game Over..." << endl;
 }
 
 #endif //_GAME_CPP_

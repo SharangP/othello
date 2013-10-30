@@ -33,18 +33,17 @@ public:
     Board();
     Board(char boardState[8][8], char currentPlayer);
     void Print();
-    void NextPlayer();
-    bool EndState();
+    bool NextPlayer(bool currentPlayerPass);
     void ApplyMove(Board::Move move);
     vector<Board::Move> LegalMoves();
-
-    char board[BOARDSIZE][BOARDSIZE];
-    char currentPlayer;
-    char numMovesMade;
 
 private:
     bool onBoard(const char y, const char x);
     bool iterate(char &y, char &x, const char mode, const char direction);
+    char board[BOARDSIZE][BOARDSIZE];
+    char currentPlayer;
+    char numMovesMade;
+    bool playerPassed;
 };
 
 #endif //_BOARD_H_

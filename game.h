@@ -15,7 +15,6 @@ using namespace std;
 
 class Game{
 public:
-
     class Player{
     public:
         Player();
@@ -28,10 +27,10 @@ public:
     void Start();
 
 private:
-    void randomMove();
+    bool randomMove();
     Board board;
-    Game::Player p1;
-    Game::Player p2;
+    Player p1;
+    Player p2;
     int timeLimit;
 };
 

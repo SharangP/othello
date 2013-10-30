@@ -136,19 +136,17 @@ void Board::Print(){
 }
 
 
-//void Board::NextPlayer()
-//  method to move to the next player
-void Board::NextPlayer(){
+//bool Board::NextPlayer()
+//  method to move to the next player,
+//  checking if the game is in an end state
+bool Board::NextPlayer(bool currentPlayerPass){
+    if(playerPassed && currentPlayerPass) //if both players pass, gameover
+        return false;
+    playerPassed = false;
     currentPlayer = (currentPlayer == WHITE)
         ? BLACK
         : WHITE;
-}
-
-
-//bool Board::EndState()
-//  method to check end state of game
-bool Board::EndState(){
-    return (numMovesMade == NUMSQUARES);
+    return true;
 }
 
 
