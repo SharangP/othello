@@ -17,13 +17,21 @@ using namespace std;
 const char iterateModes[4] = {1, 2, 3, 4};
 const char iterateDirections[2] = {-1, 1};
 
+//Board::Square::Square()
+//  empty Square constructor
 Board::Square::Square(){}
 
+
+//Board::Square::Square(char y, char x)
+//  Square constructor to initialize coordinates
 Board::Square::Square(char y, char x){
     this->y = y;
     this->x = x;
 }
 
+
+//Board::Move::Move(char player, char y, char x)
+//  Move constructor
 Board::Move::Move(char player, char y, char x){
     this->player = player;
     this->square.y = y;
@@ -31,6 +39,9 @@ Board::Move::Move(char player, char y, char x){
     this->valid = false;
 }
 
+
+//Board::Board()
+//  constructor to initialize new game board
 Board::Board(){
     //initialize empty board
     for(int i = 0; i < BOARDSIZE; i++){
@@ -46,43 +57,43 @@ Board::Board(){
     board[4][4] = BLACK;
 
     currentPlayer = BLACK;
+    numMovesMade = 4;
 }
 
+
+//Board::Board(char boardState[8][8], char currentPlayer)
+//  constructor to initialize board with boardState and currentPlayer
 Board::Board(char boardState[8][8], char currentPlayer){
+    numMovesMade = 0;
     for(int i = 0; i < BOARDSIZE; i++){
         for(int j = 0; j < BOARDSIZE; j++){
             board[i][j] = boardState[i][j];
+            if(boardState[i][j] != 0)
+                numMovesMade++;
         }
     }
     this->currentPlayer = currentPlayer;
 }
 
-void Board::Print(){
-    cout << "    0  1  2  3  4  5  6  7" << endl;
-    cout << "   ------------------------" << endl;
-    for(int i = 0; i < BOARDSIZE; i++){
-        cout << (int)i << " |";
-        for(int j = 0; j < BOARDSIZE; j++){
-            cout << " " << (int)board[i][j] << " "; //TODO: add color
-        }
-        cout << "|" << endl;
-    }
-    cout << "   ------------------------" << endl;
-}
 
+//bool Board::onBoard(const char y, const char x)
+//  private method to check whether coordinates are on the board
 bool Board::onBoard(const char y, const char x){
     return (x >= 0) && (x < BOARDSIZE) && (y >= 0) && (y < BOARDSIZE);
 }
 
-//modes
-//  1 (horizontal)
-//  2 (vertical)
-//  3 (right diagonal)
-//  4 (left diagonal)
-//
-//directions
-//  +1
-//  -1
+
+//bool Board::iterate(char &y, char &x, const char mode, const char direction)
+//  private method to iterate through the board in one direction
+//  modes
+//    1 (horizontal)
+//    2 (vertical)
+//    3 (right diagonal)
+//    4 (left diagonal)
+//  
+//  directions
+//    +1
+//    -1
 bool Board::iterate(char &y, char &x, const char mode, const char direction){
 
     if((direction != 1) && (direction != -1))
@@ -108,6 +119,51 @@ bool Board::iterate(char &y, char &x, const char mode, const char direction){
     }
 }
 
+
+//void Board::Print()
+//  board print method
+void Board::Print(){
+    cout << "    0  1  2  3  4  5  6  7" << endl;
+    cout << "   ------------------------" << endl;
+    for(int i = 0; i < BOARDSIZE; i++){
+        cout << (int)i << " |";
+        for(int j = 0; j < BOARDSIZE; j++){
+            cout << " " << (int)board[i][j] << " "; //TODO: add color
+        }
+        cout << "|" << endl;
+    }
+    cout << "   ------------------------" << endl;
+}
+
+
+//void Board::NextPlayer()
+//  method to move to the next player
+void Board::NextPlayer(){
+    currentPlayer = (currentPlayer == WHITE)
+        ? BLACK
+        : WHITE;
+}
+
+
+//bool Board::EndState()
+//  method to check end state of game
+bool Board::EndState(){
+    return (numMovesMade == NUMSQUARES);
+}
+
+
+//void Board::ApplyMove(Board::Move move)
+//  method to apply a move to the board,
+//  flipping the appropriate tiles
+void Board::ApplyMove(Board::Move move){
+    board[move.square.y][move.square.x] = move.player;
+    for(int i = 0; i < move.flips.size(); i++)
+        board[move.flips[i].y][move.flips[i].x] = move.player;
+    numMovesMade++;
+}
+
+//vector<Board::Move> Board::LegalMoves()
+//  method to find the legal moves for the current player
 vector<Board::Move> Board::LegalMoves(){
     const char player = currentPlayer;
     vector<Board::Move> moves;
@@ -149,13 +205,4 @@ vector<Board::Move> Board::LegalMoves(){
     return moves;
 }
 
-void Board::ApplyMove(Board::Move move){
-    board[move.square.y][move.square.x] = move.player;
-    for(int i = 0; i < move.flips.size(); i++)
-        board[move.flips[i].y][move.flips[i].x] = move.player;
-    currentPlayer = (currentPlayer == WHITE)
-        ? BLACK
-        : WHITE;
-}
-
-#endif
+#endif //_BOARD_CPP_

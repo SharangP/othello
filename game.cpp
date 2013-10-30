@@ -87,16 +87,16 @@ Game::Game(int gameType){
         timeLimit = t;
         board = Board();
     }
-    board.Print();
 }
 
 void Game::randomMove(){
     vector<Board::Move> moves = board.LegalMoves();
-    board.ApplyMove(moves[rand() % moves.size()]);
+    if(moves.size())
+        board.ApplyMove(moves[rand() % moves.size()]);
 }
 
 void Game::Start(){
-//    while(true){
+//    while(!board.EndState()){
 //        int movenum = 0;
 //        vector<Board::Move> m = b->LegalMoves(WHITE);
 //        for(int i = 0; i < m.size(); i++)
@@ -106,6 +106,7 @@ void Game::Start(){
 //        b->ApplyMove(m[movenum]);
 //        b->Print();
 //    }
+//    cout << "Game Over..." << endl;
 }
 
 #endif //_GAME_CPP_
