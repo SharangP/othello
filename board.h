@@ -42,7 +42,8 @@ private:
     bool iterate(char &y, char &x, const char mode, const char direction);
     char board[BOARDSIZE][BOARDSIZE];
     char currentPlayer;
-    char numMovesMade;
+    char blackScore;
+    char whiteScore;
     bool playerPassed;
 };
 

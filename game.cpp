@@ -26,11 +26,13 @@ Game::Player::Player(bool isHuman, int color){
     this->color = color;
 }
 
+Game::Game(){}
+
 //gameTypes
 //  1: go first (black)
 //  2. go second (white)
 //  3: computer vs. computer
-Game::Game(int gameType){
+void Game::Setup(int gameType){
     char import;
     int t;
 

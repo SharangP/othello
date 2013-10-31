@@ -57,19 +57,21 @@ Board::Board(){
     board[4][4] = BLACK;
 
     currentPlayer = BLACK;
-    numMovesMade = 4;
+    blackScore = 2;
+    whiteScore = 2;
 }
 
 
 //Board::Board(char boardState[8][8], char currentPlayer)
 //  constructor to initialize board with boardState and currentPlayer
 Board::Board(char boardState[8][8], char currentPlayer){
-    numMovesMade = 0;
     for(int i = 0; i < BOARDSIZE; i++){
         for(int j = 0; j < BOARDSIZE; j++){
             board[i][j] = boardState[i][j];
-            if(boardState[i][j] != 0)
-                numMovesMade++;
+            if(boardState[i][j] == WHITE)
+                whiteScore++;
+            else if(boardState[i][j] == BLACK)
+                blackScore++;
         }
     }
     this->currentPlayer = currentPlayer;
@@ -155,9 +157,13 @@ bool Board::NextPlayer(bool currentPlayerPass){
 //  flipping the appropriate tiles
 void Board::ApplyMove(Board::Move move){
     board[move.square.y][move.square.x] = move.player;
-    for(int i = 0; i < move.flips.size(); i++)
+    for(int i = 0; i < move.flips.size(); i++){
         board[move.flips[i].y][move.flips[i].x] = move.player;
-    numMovesMade++;
+        if(move.player == WHITE)
+            whiteScore++;
+        else
+            blackScore++;
+    }
 }
 
 //vector<Board::Move> Board::LegalMoves()

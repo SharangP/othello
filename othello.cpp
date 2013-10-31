@@ -16,6 +16,7 @@ using namespace std;
 
 int main(int argc, char *argv[]){
     int gameType;
+    Game game;
 
     while(true){
         cout << "Welcome to Sharang's Othello AI" << endl
@@ -25,7 +26,7 @@ int main(int argc, char *argv[]){
              << "3: computer vs. computer" << endl;
         cin >> gameType;
         if((gameType == 1) || (gameType == 2) || (gameType == 3)){
-            Game game = Game(gameType);
+            game.Setup(gameType);
             break;
         }
         cout << "Invalid option!" << endl;

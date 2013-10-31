@@ -23,7 +23,8 @@ public:
         int color;
     };
 
-    Game(int gameType);
+    Game();
+    void Setup(int gameType);
     void Start();
 
 private:
