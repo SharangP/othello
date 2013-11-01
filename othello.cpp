@@ -14,6 +14,7 @@
 
 using namespace std;
 
+
 int main(int argc, char *argv[]){
     int gameType;
     Game game;
@@ -31,5 +32,6 @@ int main(int argc, char *argv[]){
         }
         cout << "Invalid option!" << endl;
     }
+
     game.Start();
 }

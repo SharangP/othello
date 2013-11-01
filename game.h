@@ -15,23 +15,16 @@ using namespace std;
 
 class Game{
 public:
-    class Player{
-    public:
-        Player();
-        Player(bool isHuman, int color);
-        bool isHuman;
-        int color;
-    };
-
     Game();
     void Setup(int gameType);
     void Start();
 
 private:
     bool randomMove();
+    bool humanMove();
+
     Board board;
-    Player p1;
-    Player p2;
+    bool humanPlayer[2];
     int timeLimit;
 };
 

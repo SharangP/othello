@@ -11,8 +11,8 @@
 
 using namespace std;
 
-class Board{
 
+class Board{
 public:
     class Square{
     public:
@@ -36,12 +36,13 @@ public:
     bool NextPlayer(bool currentPlayerPass);
     void ApplyMove(Board::Move move);
     vector<Board::Move> LegalMoves();
+    
+    char currentPlayer;
 
 private:
     bool onBoard(const char y, const char x);
     bool iterate(char &y, char &x, const char mode, const char direction);
     char board[BOARDSIZE][BOARDSIZE];
-    char currentPlayer;
     char blackScore;
     char whiteScore;
     bool playerPassed;

@@ -130,7 +130,12 @@ void Board::Print(){
     for(int i = 0; i < BOARDSIZE; i++){
         cout << (int)i << " |";
         for(int j = 0; j < BOARDSIZE; j++){
-            cout << " " << (int)board[i][j] << " "; //TODO: add color
+            cout << " ";
+            if(board[i][j] == WHITE)
+                cout << RED;
+            else if(board[i][j] == BLACK)
+                cout << BLUE;
+            cout << (int)board[i][j] << RESET << " "; //TODO: add color
         }
         cout << "|" << endl;
     }
