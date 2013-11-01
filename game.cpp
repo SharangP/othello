@@ -29,19 +29,16 @@ void Game::Setup(int gameType){
 
     switch(gameType){
         case(1):
-            cout << "in type 1" << endl;
-            humanPlayer[0] = true;
-            humanPlayer[1] = false;
+            humanPlayer[BLACK] = true;
+            humanPlayer[WHITE] = false;
             break;
         case(2):
-            cout << "in type 2" << endl;
-            humanPlayer[0] = false;
-            humanPlayer[1] = true;
+            humanPlayer[BLACK] = false;
+            humanPlayer[WHITE] = true;
             break;
         case(3):
-            cout << "in type 3" << endl;
-            humanPlayer[0] = false;
-            humanPlayer[1] = false;
+            humanPlayer[BLACK] = false;
+            humanPlayer[WHITE] = false;
             break;
         default:
             throw;
@@ -52,8 +49,8 @@ void Game::Setup(int gameType){
 
     //allow user to import a board state
     if(tolower(import) == 'y'){
-        char c, currentPlayer, boardState[8][8];
-        int i = 0, j = 0;
+        char c, boardState[8][8];
+        int currentPlayer, i = 0, j = 0;
         string fileName;
         fstream boardFile;
 
@@ -91,18 +88,24 @@ bool Game::randomMove(){
     vector<Board::Move> m = board.LegalMoves();
     if(m.size()){
         board.ApplyMove(m[rand() % m.size()]);
+        //board.Print();
         return board.NextPlayer(false);
     }
-    else
+    else{
+        cout << "Computer had to pass :(" << endl;
         return board.NextPlayer(true);
+    }
 }
 
 
 bool Game::humanMove(){
     int moveNum;
 
+    cout << "in humanMove" << endl;
+
     vector<Board::Move> m = board.LegalMoves();
     if(m.size()){
+        board.Print(m);
         for(int i = 0; i < m.size(); i++)
             cout << i << ": [" << (int)m[i].square.y << "," << (int)m[i].square.x << "]" << endl;
         cout << "Choose your move wisely: ";
@@ -133,14 +136,17 @@ void Game::Start(){
     }
 
     while(true){
-        if((gameOver = humanMove()))
+        gameOver = humanMove();
+        cout << "gameOver after humanMove: " << gameOver << endl;
+        if(gameOver)
             break;
-        board.Print();
-        if((gameOver = randomMove()))
+
+        gameOver = randomMove();
+        cout << "gameOver after randomMove: " << gameOver << endl;
+        if(gameOver)
             break;
-        board.Print();
     }
-    cout << "Game Over..." << endl;
+    cout << "Game Over..." << endl; //TODO:check end condition
 }
 
 #endif //_GAME_CPP_

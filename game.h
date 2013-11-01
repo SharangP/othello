@@ -24,7 +24,7 @@ private:
     bool humanMove();
 
     Board board;
-    bool humanPlayer[2];
+    bool humanPlayer[3];
     int timeLimit;
 };
 

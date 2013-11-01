@@ -23,28 +23,27 @@ public:
 
     class Move{
     public:
-        Move(char player, char y, char x);
+        Move(int player, char y, char x);
         Board::Square square;
-        char player;
+        int player;
         bool valid;
         vector<Square> flips;
     };
 
     Board();
-    Board(char boardState[8][8], char currentPlayer);
-    void Print();
+    Board(char boardState[8][8], int currentPlayer);
+    void Print(vector<Board::Move> moves = vector<Board::Move>());
     bool NextPlayer(bool currentPlayerPass);
     void ApplyMove(Board::Move move);
     vector<Board::Move> LegalMoves();
     
-    char currentPlayer;
+    int currentPlayer;
 
 private:
     bool onBoard(const char y, const char x);
-    bool iterate(char &y, char &x, const char mode, const char direction);
+    bool iterate(char &y, char &x, const int mode, const int direction);
     char board[BOARDSIZE][BOARDSIZE];
-    char blackScore;
-    char whiteScore;
+    int score[3];
     bool playerPassed;
 };
 

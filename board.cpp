@@ -14,8 +14,8 @@
 using namespace std;
 
 
-const char iterateModes[4] = {1, 2, 3, 4};
-const char iterateDirections[2] = {-1, 1};
+const int iterateModes[4] = {1, 2, 3, 4};
+const int iterateDirections[2] = {-1, 1};
 
 //Board::Square::Square()
 //  empty Square constructor
@@ -30,9 +30,9 @@ Board::Square::Square(char y, char x){
 }
 
 
-//Board::Move::Move(char player, char y, char x)
+//Board::Move::Move(int player, char y, char x)
 //  Move constructor
-Board::Move::Move(char player, char y, char x){
+Board::Move::Move(int player, char y, char x){
     this->player = player;
     this->square.y = y;
     this->square.x = x;
@@ -57,24 +57,26 @@ Board::Board(){
     board[4][4] = BLACK;
 
     currentPlayer = BLACK;
-    blackScore = 2;
-    whiteScore = 2;
+    playerPassed = false;
+    score[BLACK] = 2;
+    score[WHITE] = 2;
 }
 
 
-//Board::Board(char boardState[8][8], char currentPlayer)
+//Board::Board(char boardState[8][8], int currentPlayer)
 //  constructor to initialize board with boardState and currentPlayer
-Board::Board(char boardState[8][8], char currentPlayer){
+Board::Board(char boardState[8][8], int currentPlayer){
     for(int i = 0; i < BOARDSIZE; i++){
         for(int j = 0; j < BOARDSIZE; j++){
             board[i][j] = boardState[i][j];
             if(boardState[i][j] == WHITE)
-                whiteScore++;
+                score[WHITE]++;
             else if(boardState[i][j] == BLACK)
-                blackScore++;
+                score[BLACK]++;
         }
     }
     this->currentPlayer = currentPlayer;
+    playerPassed = false;
 }
 
 
@@ -85,7 +87,7 @@ bool Board::onBoard(const char y, const char x){
 }
 
 
-//bool Board::iterate(char &y, char &x, const char mode, const char direction)
+//bool Board::iterate(char &y, char &x, const int mode, const int direction)
 //  private method to iterate through the board in one direction
 //  modes
 //    1 (horizontal)
@@ -96,7 +98,7 @@ bool Board::onBoard(const char y, const char x){
 //  directions
 //    +1
 //    -1
-bool Board::iterate(char &y, char &x, const char mode, const char direction){
+bool Board::iterate(char &y, char &x, const int mode, const int direction){
 
     if((direction != 1) && (direction != -1))
         return false;
@@ -124,13 +126,16 @@ bool Board::iterate(char &y, char &x, const char mode, const char direction){
 
 //void Board::Print()
 //  board print method
-void Board::Print(){
+void Board::Print(vector<Board::Move> moves){
     cout << "    0  1  2  3  4  5  6  7" << endl;
     cout << "   ------------------------" << endl;
     for(int i = 0; i < BOARDSIZE; i++){
         cout << (int)i << " |";
         for(int j = 0; j < BOARDSIZE; j++){
             cout << " ";
+            for(int k = 0; k < moves.size(); k++)
+                if(moves[k].square.y == i && moves[k].square.x == j)
+                    cout << YELLOW;
             if(board[i][j] == WHITE)
                 cout << RED;
             else if(board[i][j] == BLACK)
@@ -147,13 +152,15 @@ void Board::Print(){
 //  method to move to the next player,
 //  checking if the game is in an end state
 bool Board::NextPlayer(bool currentPlayerPass){
-    if(playerPassed && currentPlayerPass) //if both players pass, gameover
-        return false;
-    playerPassed = false;
+    //if both players pass or the board is full, game over
+    if((playerPassed && currentPlayerPass) || (score[BLACK]+score[WHITE] == NUMSQUARES))
+        return true;
+
     currentPlayer = (currentPlayer == WHITE)
         ? BLACK
         : WHITE;
-    return true;
+    playerPassed = false;
+    return false;
 }
 
 
@@ -161,45 +168,53 @@ bool Board::NextPlayer(bool currentPlayerPass){
 //  method to apply a move to the board,
 //  flipping the appropriate tiles
 void Board::ApplyMove(Board::Move move){
+
+    cout << "in applyMove" << endl;
+
+    cout << "move being applied: p: " << move.player << " y: " << move.square.y << " x: " << move.square.x << endl;
+
     board[move.square.y][move.square.x] = move.player;
     for(int i = 0; i < move.flips.size(); i++){
         board[move.flips[i].y][move.flips[i].x] = move.player;
-        if(move.player == WHITE)
-            whiteScore++;
-        else
-            blackScore++;
+        if(move.player == WHITE){
+            score[WHITE]++;
+            score[BLACK]--;
+        }
+        else{
+            score[BLACK]++;
+            score[WHITE]--;
+        }
     }
 }
 
 //vector<Board::Move> Board::LegalMoves()
 //  method to find the legal moves for the current player
 vector<Board::Move> Board::LegalMoves(){
-    const char player = currentPlayer;
     vector<Board::Move> moves;
 
     for(int i = 0; i < BOARDSIZE; i++){
         for(int j = 0; j < BOARDSIZE; j++){
             if(board[i][j] == 0){
 
-                Board::Move move(player, i, j);
+                Board::Move move(currentPlayer, i, j);
 
                 for(int n = 0; n < sizeof(iterateModes); n++){
-                    char mode = iterateModes[n];
+                    int mode = iterateModes[n];
                     for(int m = 0; m < sizeof(iterateDirections); m++){
-                        char direction = iterateDirections[m];
+                        int direction = iterateDirections[m];
                         char y = move.square.y, x = move.square.x;
                         vector<Board::Square> trace;
 
                         iterate(y, x, mode, direction);
 
                         //not a valid direction unless opponent's piece is next
-                        if((board[y][x] == player) || (board[y][x] == 0)){
+                        if((board[y][x] == currentPlayer) || (board[y][x] == 0)){
                             continue;
                         }
 
                         for(y, x; onBoard(y, x); iterate(y, x, mode, direction)){
                             trace.push_back(Board::Square(y, x)); //keep track of potential flips
-                            if(board[y][x] == player){
+                            if(board[y][x] == currentPlayer){
                                 //mark move as valid and append trace to flips vector
                                 move.valid = true;
                                 move.flips.insert(move.flips.end(), trace.begin(), trace.end());                            }
