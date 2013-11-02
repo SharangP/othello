@@ -9,6 +9,7 @@
 #include <fstream>
 #include <vector>
 #include <ctype.h>
+#include <climits>
 #include <stdlib.h>
 #include "game.h"
 #include "board.h"
@@ -98,10 +99,16 @@ bool Game::randomMove(){
 }
 
 
+bool Game::smartMove(){
+    int alpha = INT_MIN, beta = INT_MAX, depth = 0;
+    //increment depth of search until time runs out
+    vector<Board::Move> m = board.LegalMoves();
+    return false;
+}
+
+
 bool Game::humanMove(){
     int moveNum;
-
-    cout << "in humanMove" << endl;
 
     vector<Board::Move> m = board.LegalMoves();
     if(m.size()){
@@ -124,7 +131,7 @@ bool Game::humanMove(){
         return board.NextPlayer(true);
 }
 
-void Game::Start(){
+void Game::Play(){
     bool gameOver = false;
 
     cout << "Let the game begin!" << endl << endl;
@@ -144,7 +151,8 @@ void Game::Start(){
         if(gameOver)
             break;
     }
-    cout << "Game Over..." << endl; //TODO:check end condition
+    board.Print();
+    board.GameOver();
 }
 
 #endif //_GAME_CPP_

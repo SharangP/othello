@@ -17,10 +17,12 @@ class Game{
 public:
     Game();
     void Setup(int gameType);
-    void Start();
+    void Play();
 
 private:
+    int heuristic(Board board, Board::Move move);
     bool randomMove();
+    bool smartMove();
     bool humanMove();
 
     Board board;

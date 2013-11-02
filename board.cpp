@@ -66,6 +66,8 @@ Board::Board(){
 //Board::Board(char boardState[8][8], int currentPlayer)
 //  constructor to initialize board with boardState and currentPlayer
 Board::Board(char boardState[8][8], int currentPlayer){
+    score[BLACK] = 0;
+    score[WHITE] = 0;
     for(int i = 0; i < BOARDSIZE; i++){
         for(int j = 0; j < BOARDSIZE; j++){
             board[i][j] = boardState[i][j];
@@ -119,7 +121,8 @@ bool Board::iterate(char &y, char &x, const int mode, const int direction){
             x -= direction;
             return true;
         default:
-            return false;
+            cout << "THROWING BECAUSE mode = " << mode << endl;
+            throw;
     }
 }
 
@@ -174,12 +177,12 @@ bool Board::NextPlayer(bool currentPlayerPass){
 //  method to apply a move to the board,
 //  flipping the appropriate tiles
 void Board::ApplyMove(Board::Move move){
-
-    cout << "in applyMove" << endl;
-
-    cout << "move being applied: p: " << move.player << " y: " << move.square.y << " x: " << move.square.x << endl;
-
     board[move.square.y][move.square.x] = move.player;
+    if(move.player == WHITE)
+        score[WHITE]++;
+    else
+        score[BLACK]++;
+
     for(int i = 0; i < move.flips.size(); i++){
         board[move.flips[i].y][move.flips[i].x] = move.player;
         if(move.player == WHITE){
@@ -200,39 +203,79 @@ vector<Board::Move> Board::LegalMoves(){
 
     for(int i = 0; i < BOARDSIZE; i++){
         for(int j = 0; j < BOARDSIZE; j++){
-            if(board[i][j] == 0){
+            if(board[i][j] != 0) //only open squares can be played
+                continue;
 
-                Board::Move move(currentPlayer, i, j);
+            Board::Move move = Board::Move(currentPlayer, i, j);
 
-                for(int n = 0; n < sizeof(iterateModes); n++){
-                    int mode = iterateModes[n];
-                    for(int m = 0; m < sizeof(iterateDirections); m++){
-                        int direction = iterateDirections[m];
-                        char y = move.square.y, x = move.square.x;
-                        vector<Board::Square> trace;
+            for(int n = 0; n < NUMMODES; n++){
+                int mode = iterateModes[n];
+                for(int m = 0; m < NUMDIRECTIONS; m++){
+                    int direction = iterateDirections[m];
+                    char y = move.square.y, x = move.square.x;
+                    vector<Board::Square> trace; // = *(new vector<Board::Square>());
+                    
+                    iterate(y, x, mode, direction);
 
-                        iterate(y, x, mode, direction);
+                    //not a valid direction unless opponent's piece is next
+                    if((board[y][x] == currentPlayer) || (board[y][x] == 0))
+                        continue;
 
-                        //not a valid direction unless opponent's piece is next
-                        if((board[y][x] == currentPlayer) || (board[y][x] == 0)){
-                            continue;
+                    // cout << "this might be a valid move: " << (int)i << "," << (int)j << endl;
+
+                    // cout << "-----begining iterate for loop-----" << endl;
+                    // cout << "flip size: " << move.flips.size() << endl;
+                    // cout << "mode: " << mode << " direction: " << direction << endl;
+                    // cout << "-----------------------------------" << endl;
+
+                    for(y, x; onBoard(y, x); iterate(y, x, mode, direction)){
+                        if(board[y][x] == currentPlayer){
+
+                            // cout << "\t----------IF----------" << endl;
+                            // cout << "\tflip size: " << move.flips.size() << endl;
+                            // cout << "\tinserted flip for potential move [" << i << "," << j << "]";
+                            // cout << " y: " << (int)y << " x: " << (int)x << endl;
+                            // cout << "\t---------ENDIF--------" << endl;
+
+                            //mark move as valid and append trace to flips vector
+                            move.valid = true;
+                            move.flips.insert(move.flips.end(), trace.begin(), trace.end());
+                            break;
                         }
-
-                        for(y, x; onBoard(y, x); iterate(y, x, mode, direction)){
+                        else if(board[y][x] == 0)
+                            break;
+                        else{
+                            
+                            // cout << "\t---------ELSE---------" << endl;
+                            // cout << "\tinserted flip for potential move [" << i << "," << j << "]";
+                            // cout << " y: " << (int)y << " x: " << (int)x << endl;
+                            // cout << "\t---------ENDELSE---------" << endl;
+                            
                             trace.push_back(Board::Square(y, x)); //keep track of potential flips
-                            if(board[y][x] == currentPlayer){
-                                //mark move as valid and append trace to flips vector
-                                move.valid = true;
-                                move.flips.insert(move.flips.end(), trace.begin(), trace.end());                            }
                         }
                     }
                 }
-                if(move.valid)
-                    moves.push_back(move);
+            }
+            if(move.valid){
+                moves.push_back(move);
+                // cout << "====PUSHED MOVE: " << (int)move.square.y << "," << (int)move.square.x;
+                // cout << " with flips size: " << move.flips.size() << endl;
             }
         }
     }
     return moves;
+}
+
+
+void Board::GameOver(){
+    cout << "GAME OVER" << endl;
+    cout << "white: " << score[WHITE] << " black : " << score[BLACK] << endl;
+    if(score[WHITE] > score[BLACK])
+        cout << "White wins!" << endl;
+    else if(score[WHITE] < score[BLACK])
+        cout << "Black wins!" << endl;
+    else
+        cout << "Tie!" << endl;
 }
 
 #endif //_BOARD_CPP_
