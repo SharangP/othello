@@ -130,10 +130,8 @@ void Game::Start(){
     cout << "Let the game begin!" << endl << endl;
     board.Print();
 
-    if(!humanPlayer[board.currentPlayer]){
+    if(!humanPlayer[board.currentPlayer])
         randomMove();
-        board.Print();
-    }
 
     while(true){
         gameOver = humanMove();

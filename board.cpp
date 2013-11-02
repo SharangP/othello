@@ -132,15 +132,21 @@ void Board::Print(vector<Board::Move> moves){
     for(int i = 0; i < BOARDSIZE; i++){
         cout << (int)i << " |";
         for(int j = 0; j < BOARDSIZE; j++){
+            bool potentialMove = false;
             cout << " ";
-            for(int k = 0; k < moves.size(); k++)
-                if(moves[k].square.y == i && moves[k].square.x == j)
-                    cout << YELLOW;
-            if(board[i][j] == WHITE)
-                cout << RED;
-            else if(board[i][j] == BLACK)
-                cout << BLUE;
-            cout << (int)board[i][j] << RESET << " "; //TODO: add color
+            for(int k = 0; k < moves.size(); k++){
+                if(moves[k].square.y == i && moves[k].square.x == j){
+                    cout << YELLOW << k << RESET << " ";
+                    potentialMove = true;
+                }
+            }
+            if(!potentialMove){
+                if(board[i][j] == WHITE)
+                    cout << RED;
+                else if(board[i][j] == BLACK)
+                    cout << BLUE;
+                cout << (int)board[i][j] << RESET << " ";
+            }
         }
         cout << "|" << endl;
     }
