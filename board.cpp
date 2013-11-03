@@ -36,10 +36,9 @@ Board::Square::Square(char y, char x){
 Board::Move::Move(){}
 
 
-//Board::Move::Move(int player, char y, char x)
+//Board::Move::Move(char y, char x)
 //  Move constructor
-Board::Move::Move(int player, char y, char x){
-    this->player = player;
+Board::Move::Move(char y, char x){
     this->square.y = y;
     this->square.x = x;
     this->valid = false;
@@ -209,15 +208,15 @@ bool Board::NextPlayer(bool currentPlayerPass){
 //  method to apply a move to the board,
 //  flipping the appropriate tiles
 void Board::ApplyMove(Board::Move move){
-    board[move.square.y][move.square.x] = move.player;
-    if(move.player == WHITE)
+    board[move.square.y][move.square.x] = currentPlayer;
+    if(currentPlayer == WHITE)
         score[WHITE]++;
     else
         score[BLACK]++;
 
     for(int i = 0; i < move.flips.size(); i++){
-        board[move.flips[i].y][move.flips[i].x] = move.player;
-        if(move.player == WHITE){
+        board[move.flips[i].y][move.flips[i].x] = currentPlayer;
+        if(currentPlayer == WHITE){
             score[WHITE]++;
             score[BLACK]--;
         }
@@ -238,7 +237,7 @@ vector<Board::Move> Board::LegalMoves(){
             if(board[i][j] != 0) //only open squares can be played
                 continue;
 
-            Board::Move move = Board::Move(currentPlayer, i, j);
+            Board::Move move = Board::Move(i, j);
 
             for(int n = 0; n < NUMMODES; n++){
                 int mode = iterateModes[n];

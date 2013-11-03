@@ -5,8 +5,6 @@
 #ifndef _GAME_H_
 #define _GAME_H_
 
-#include <iostream>
-#include <vector>
 #include "board.h"
 #include "const.h"
 
@@ -20,7 +18,7 @@ public:
     void Play();
 
 private:
-    int heuristic(Board board, bool maxPlayer);
+    int heuristic(Board board);
     int alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer);
     bool smartMove();
     bool humanMove();

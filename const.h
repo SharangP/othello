@@ -1,5 +1,5 @@
-#ifndef _MACROS_H_
-#define _MACROS_H_
+#ifndef _CONST_H_
+#define _CONST_H_
 
 #define BOARDSIZE 8
 #define NUMSQUARES 64

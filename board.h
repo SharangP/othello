@@ -5,7 +5,6 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
-#include <iostream>
 #include <vector>
 #include "const.h"
 
@@ -24,9 +23,8 @@ public:
     class Move{
     public:
         Move();
-        Move(int player, char y, char x);
+        Move(char y, char x);
         Board::Square square;
-        int player;
         bool valid;
         vector<Square> flips;
     };

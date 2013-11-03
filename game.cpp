@@ -85,14 +85,11 @@ void Game::Setup(int gameType){
 }
 
 
-int Game::heuristic(Board board, bool maxPlayer){
+int Game::heuristic(Board board){
     int opponent = (board.currentPlayer == WHITE)
         ? BLACK
         : WHITE;
-    if(maxPlayer)
-        return board.score[board.currentPlayer] - board.score[opponent];
-    else
-        return board.score[opponent] - board.score[board.currentPlayer];
+    return board.score[board.currentPlayer] - board.score[opponent];
 }
 
 
@@ -100,15 +97,22 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
     int a = alpha, b = beta, msize;
 
     if(depth == 0) //do a quick check on depth
-        return heuristic(board, maxPlayer);
+        return heuristic(board);
     else
         depth--;
 
     vector<Board::Move> m = board.LegalMoves(); //expand
     msize = m.size();
 
-    if(board.TerminalState(msize == 0)) //if no legal moves, then check terminal state
-        return heuristic(board, maxPlayer);
+    if(msize == 0){
+        if(board.TerminalState(true)) //if no legal moves, check terminal state
+            return heuristic(board);
+        else{ //if pass is only move, continue search with pass
+            Board child = board;
+            child.NextPlayer(true);
+            return alphabeta(child, depth, alpha, beta, !maxPlayer);
+        }
+    }
 
     if(maxPlayer){ //maximize alpha
         for(int i = 0; i < msize; i++){
@@ -156,7 +160,7 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
 
 
 bool Game::smartMove(){
-    const int depthLimit = 2;
+    const int depthLimit = 3;
     int depth = 0, eval;
     Board::Move move;
     
