@@ -85,11 +85,39 @@ void Game::Setup(int gameType){
 }
 
 
-int Game::heuristic(Board board){
-    int opponent = (board.currentPlayer == WHITE)
+
+int Game::heuristic(Board b){
+    double piececount, corners, frontier, mobility;
+
+    int opponent = (b.currentPlayer == WHITE)
         ? BLACK
         : WHITE;
-    return board.score[board.currentPlayer] - board.score[opponent];
+
+    //piece count
+    piececount = (b.score[b.currentPlayer] > b.score[opponent])
+        ? (100.0*b.score[b.currentPlayer])/(b.score[b.currentPlayer] + b.score[opponent])
+        : (b.score[b.currentPlayer] < b.score[opponent])
+        ? -(100.0*b.score[opponent])/(b.score[b.currentPlayer] + b.score[opponent])
+        : 0;
+    
+    //corners
+    int myCorners = 0, oppCorners = 0;
+    if(b.board[0][0] == b.currentPlayer) myCorners++;
+    else if(b.board[0][0] == opponent) oppCorners++;
+    if(b.board[0][7] == b.currentPlayer) myCorners++;
+    else if(b.board[0][7] == opponent) oppCorners++;
+    if(b.board[7][0] == b.currentPlayer) myCorners++;
+    else if(b.board[7][0] == opponent) oppCorners++;
+    if(b.board[7][7] == b.currentPlayer) myCorners++;
+    else if(b.board[7][7] == opponent) oppCorners++;
+    corners = myCorners - oppCorners;
+
+    //mobility
+    int myMoves = board.LegalMoves(b.currentPlayer).size();
+    int oppMoves = board.LegalMoves(opponent).size();
+
+    //TODO: vary with "time"
+    return 10*piececount + 500*corners + 0*frontier + 10*mobility;
 }
 
 
@@ -101,7 +129,7 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
     else
         depth--;
 
-    vector<Board::Move> m = board.LegalMoves(); //expand
+    vector<Board::Move> m = board.LegalMoves(board.currentPlayer); //expand
     msize = m.size();
 
     if(msize == 0){
@@ -165,7 +193,7 @@ bool Game::smartMove(){
     Board::Move move;
     
     //expand layer 1
-    vector<Board::Move> legal = board.LegalMoves();
+    vector<Board::Move> legal = board.LegalMoves(board.currentPlayer);
 
     if(legal.size() == 0) //if no legal moves, pass
         return board.NextPlayer(true);
@@ -196,7 +224,7 @@ bool Game::smartMove(){
 
 // returns false if game over
 bool Game::randomMove(){
-    vector<Board::Move> m = board.LegalMoves();
+    vector<Board::Move> m = board.LegalMoves(board.currentPlayer);
     if(m.size()){
         cout << "in randomMove with m.size() > 0" << endl;
         Board::Move randMove = m[rand() % m.size()];
@@ -214,7 +242,7 @@ bool Game::randomMove(){
 bool Game::humanMove(){
     int moveNum;
 
-    vector<Board::Move> m = board.LegalMoves();
+    vector<Board::Move> m = board.LegalMoves(board.currentPlayer);
     if(m.size()){
         board.Print(m);
         for(int i = 0; i < m.size(); i++)
@@ -243,14 +271,14 @@ void Game::Play(){
     board.Print();
 
     if(!humanPlayer[board.currentPlayer])
-        smartMove();//randomMove();
+        smartMove();
 
-    while(true){
+    while(true){ //TODO: allow computer vs computer
         gameOver = humanMove();
         if(gameOver)
             break;
 
-        gameOver = smartMove();//randomMove();
+        gameOver = smartMove();
         if(gameOver)
             break;
     }

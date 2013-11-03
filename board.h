@@ -36,7 +36,7 @@ public:
     bool TerminalState(bool currentPlayerPass);
     bool NextPlayer(bool currentPlayerPass);
     void ApplyMove(Board::Move move);
-    vector<Board::Move> LegalMoves();
+    vector<Board::Move> LegalMoves(int player);
     void GameOver();
     
     int currentPlayer;

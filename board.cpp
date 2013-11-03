@@ -227,9 +227,9 @@ void Board::ApplyMove(Board::Move move){
     }
 }
 
-//vector<Board::Move> Board::LegalMoves()
+//vector<Board::Move> Board::LegalMoves(int player)
 //  method to find the legal moves for the current player
-vector<Board::Move> Board::LegalMoves(){
+vector<Board::Move> Board::LegalMoves(int player){
     vector<Board::Move> moves;
 
     for(int i = 0; i < BOARDSIZE; i++){
@@ -244,12 +244,12 @@ vector<Board::Move> Board::LegalMoves(){
                 for(int m = 0; m < NUMDIRECTIONS; m++){
                     int direction = iterateDirections[m];
                     char y = move.square.y, x = move.square.x;
-                    vector<Board::Square> trace; // = *(new vector<Board::Square>());
+                    vector<Board::Square> trace;
                     
                     iterate(y, x, mode, direction);
 
                     //not a valid direction unless opponent's piece is next
-                    if((board[y][x] == currentPlayer) || (board[y][x] == 0))
+                    if((board[y][x] == player) || (board[y][x] == 0))
                         continue;
 
                     // cout << "this might be a valid move: " << (int)i << "," << (int)j << endl;
@@ -260,7 +260,7 @@ vector<Board::Move> Board::LegalMoves(){
                     // cout << "-----------------------------------" << endl;
 
                     for(y, x; onBoard(y, x); iterate(y, x, mode, direction)){
-                        if(board[y][x] == currentPlayer){
+                        if(board[y][x] == player){
 
                             // cout << "\t----------IF----------" << endl;
                             // cout << "\tflip size: " << move.flips.size() << endl;
