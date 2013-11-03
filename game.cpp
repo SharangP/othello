@@ -270,17 +270,11 @@ void Game::Play(){
     cout << "Let the game begin!" << endl << endl;
     board.Print();
 
-    if(!humanPlayer[board.currentPlayer])
-        smartMove();
-
-    while(true){ //TODO: allow computer vs computer
-        gameOver = humanMove();
-        if(gameOver)
-            break;
-
-        gameOver = smartMove();
-        if(gameOver)
-            break;
+    while(!gameOver){ //TODO: allow computer vs computer
+        if(humanPlayer[board.currentPlayer])
+            gameOver = humanMove();
+        else
+            gameOver = smartMove();
     }
     board.Print();
     board.GameOver();
