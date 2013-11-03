@@ -23,6 +23,7 @@ public:
 
     class Move{
     public:
+        Move();
         Move(int player, char y, char x);
         Board::Square square;
         int player;
@@ -31,21 +32,23 @@ public:
     };
 
     Board();
+    Board(Board &b);
     Board(char boardState[8][8], int currentPlayer);
-    void Print(vector<Board::Move> moves = vector<Board::Move>());
+    void Print(vector<Board::Move> moves = vector<Board::Move>(), bool computer = false);
+    bool TerminalState(bool currentPlayerPass);
     bool NextPlayer(bool currentPlayerPass);
     void ApplyMove(Board::Move move);
     vector<Board::Move> LegalMoves();
     void GameOver();
     
     int currentPlayer;
+    int score[3];
+    char board[BOARDSIZE][BOARDSIZE];
+    bool playerPassed;
 
 private:
     bool onBoard(const char y, const char x);
     bool iterate(char &y, char &x, const int mode, const int direction);
-    char board[BOARDSIZE][BOARDSIZE];
-    int score[3];
-    bool playerPassed;
 };
 
 #endif //_BOARD_H_

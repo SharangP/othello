@@ -8,8 +8,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <ctype.h>
 #include <climits>
+#include <time.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include "game.h"
 #include "board.h"
@@ -84,26 +85,124 @@ void Game::Setup(int gameType){
 }
 
 
+int Game::heuristic(Board board, bool maxPlayer){
+    int opponent = (board.currentPlayer == WHITE)
+        ? BLACK
+        : WHITE;
+    if(maxPlayer)
+        return board.score[board.currentPlayer] - board.score[opponent];
+    else
+        return board.score[opponent] - board.score[board.currentPlayer];
+}
+
+
+int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer){
+    int a = alpha, b = beta, msize;
+
+    if(depth == 0) //do a quick check on depth
+        return heuristic(board, maxPlayer);
+    else
+        depth--;
+
+    vector<Board::Move> m = board.LegalMoves(); //expand
+    msize = m.size();
+
+    if(board.TerminalState(msize == 0)) //if no legal moves, then check terminal state
+        return heuristic(board, maxPlayer);
+
+    if(maxPlayer){ //maximize alpha
+        for(int i = 0; i < msize; i++){
+
+            Board child = board;
+            child.ApplyMove(m[i]);
+            child.NextPlayer(false);
+
+            int eval = alphabeta(child, depth, alpha, beta, false);
+            a = MAX(a, eval);
+
+            cout << "===MAX move [" << (int)m[i].square.y << "," << (int)m[i].square.x << "] ";
+            cout << "eval: " << "alpha: " << a << "beta: " << b << endl;
+
+            //if opponent can make a move that will give max
+            //a lower score than alpha, this branch is not
+            //worth exploring
+            if(b <= a)
+                break;
+        }
+        return a;
+    }
+    else{ //minimize beta
+        for(int i = 0; i < msize; i++){
+
+            Board child = board;
+            child.ApplyMove(m[i]);
+            child.NextPlayer(false);
+
+            int eval = alphabeta(child, depth, alpha, beta, true);
+            b = MIN(b, eval);
+            
+            cout << "===MIN move [" << (int)m[i].square.y << "," << (int)m[i].square.x << "] ";
+            cout << "eval: " << "alpha: " << a << "beta: " << b << endl;
+
+            //if opponent can make a move that will give max
+            //a lower score than alpha, this branch is not
+            //worth exploring
+            if(b <= a)
+                break;
+        }
+        return b;
+    }
+}
+
+
+bool Game::smartMove(){
+    const int depthLimit = 2;
+    int depth = 0, eval;
+    Board::Move move;
+    
+    //expand layer 1
+    vector<Board::Move> legal = board.LegalMoves();
+
+    if(legal.size() == 0) //if no legal moves, pass
+        return board.NextPlayer(true);
+
+    //increment depth of search until time runs out
+    //look for the move with the MAX evaluation
+    for(depth = 0; depth < depthLimit; depth++){
+        int alpha = INT_MIN, beta = INT_MAX;
+        for(int i = 0; i < legal.size(); i++){
+            cout << "Evaluating move [" << (int)legal[i].square.y << "," << (int)legal[i].square.x << "] eval: ";
+            Board child = board;
+            child.ApplyMove(legal[i]);
+            eval = alphabeta(child, depth, alpha, beta, true); //false since calling on min nodes?
+            cout << eval << endl;
+            if(eval > alpha){ //TODO:randomize if equal
+                move = legal[i];
+                alpha = eval;
+            }
+        }
+    }
+
+    board.Print(vector<Board::Move>(1,move), true);
+    board.ApplyMove(move);
+    return board.NextPlayer(false);
+}
+
+
 // returns false if game over
 bool Game::randomMove(){
     vector<Board::Move> m = board.LegalMoves();
     if(m.size()){
-        board.ApplyMove(m[rand() % m.size()]);
-        //board.Print();
+        cout << "in randomMove with m.size() > 0" << endl;
+        Board::Move randMove = m[rand() % m.size()];
+        board.Print(vector<Board::Move>(1,randMove), true);
+        board.ApplyMove(randMove);
         return board.NextPlayer(false);
     }
     else{
         cout << "Computer had to pass :(" << endl;
         return board.NextPlayer(true);
     }
-}
-
-
-bool Game::smartMove(){
-    int alpha = INT_MIN, beta = INT_MAX, depth = 0;
-    //increment depth of search until time runs out
-    vector<Board::Move> m = board.LegalMoves();
-    return false;
 }
 
 
@@ -133,21 +232,20 @@ bool Game::humanMove(){
 
 void Game::Play(){
     bool gameOver = false;
+    srand(time(NULL)); //seed rand
 
     cout << "Let the game begin!" << endl << endl;
     board.Print();
 
     if(!humanPlayer[board.currentPlayer])
-        randomMove();
+        smartMove();//randomMove();
 
     while(true){
         gameOver = humanMove();
-        cout << "gameOver after humanMove: " << gameOver << endl;
         if(gameOver)
             break;
 
-        gameOver = randomMove();
-        cout << "gameOver after randomMove: " << gameOver << endl;
+        gameOver = smartMove();//randomMove();
         if(gameOver)
             break;
     }

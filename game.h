@@ -20,10 +20,11 @@ public:
     void Play();
 
 private:
-    int heuristic(Board board, Board::Move move);
-    bool randomMove();
+    int heuristic(Board board, bool maxPlayer);
+    int alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer);
     bool smartMove();
     bool humanMove();
+    bool randomMove();
 
     Board board;
     bool humanPlayer[3];

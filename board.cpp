@@ -30,6 +30,11 @@ Board::Square::Square(char y, char x){
 }
 
 
+//Board::Move::Move(){}
+//  empty Move constructor
+Board::Move::Move(){}
+
+
 //Board::Move::Move(int player, char y, char x)
 //  Move constructor
 Board::Move::Move(int player, char y, char x){
@@ -60,6 +65,19 @@ Board::Board(){
     playerPassed = false;
     score[BLACK] = 2;
     score[WHITE] = 2;
+}
+
+//Board::Board(Board *board)
+//  copy constructor
+Board::Board(Board &b){
+    for(int i = 0; i < BOARDSIZE; i++)
+        for(int j = 0; j < BOARDSIZE; j++)
+            this->board[i][j] = b.board[i][j];
+    for(int i = 0; i < 3; i++)
+        this->score[i] = b.score[i];
+
+    this->currentPlayer = b.currentPlayer;
+    this->playerPassed = b.playerPassed;
 }
 
 
@@ -127,9 +145,10 @@ bool Board::iterate(char &y, char &x, const int mode, const int direction){
 }
 
 
-//void Board::Print()
+//void Board::Print(vector<Board::Move> moves, bool computer)
 //  board print method
-void Board::Print(vector<Board::Move> moves){
+//  prints moves in yellow if provided, green if the computer bit is set
+void Board::Print(vector<Board::Move> moves, bool computer){
     cout << "    0  1  2  3  4  5  6  7" << endl;
     cout << "   ------------------------" << endl;
     for(int i = 0; i < BOARDSIZE; i++){
@@ -139,7 +158,11 @@ void Board::Print(vector<Board::Move> moves){
             cout << " ";
             for(int k = 0; k < moves.size(); k++){
                 if(moves[k].square.y == i && moves[k].square.x == j){
-                    cout << YELLOW << k << RESET << " ";
+                    if(computer)
+                        cout << GREEN << (int)board[i][j] << RESET << " ";
+                    else{
+                        cout << YELLOW << k << RESET << " ";
+                    }
                     potentialMove = true;
                 }
             }
@@ -157,14 +180,23 @@ void Board::Print(vector<Board::Move> moves){
 }
 
 
+//bool Board::TerminalState(bool currentPlayerPass)
+//  check whether the game is in an end state
+bool Board::TerminalState(bool currentPlayerPass){
+    //if both players pass or the board is full, game over
+    if((playerPassed && currentPlayerPass) || (score[BLACK]+score[WHITE] == NUMSQUARES)){
+        return true;
+    }
+    return false;
+}
+
+
 //bool Board::NextPlayer()
 //  method to move to the next player,
 //  checking if the game is in an end state
 bool Board::NextPlayer(bool currentPlayerPass){
-    //if both players pass or the board is full, game over
-    if((playerPassed && currentPlayerPass) || (score[BLACK]+score[WHITE] == NUMSQUARES))
+    if(TerminalState(currentPlayerPass))
         return true;
-
     currentPlayer = (currentPlayer == WHITE)
         ? BLACK
         : WHITE;
