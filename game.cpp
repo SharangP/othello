@@ -121,7 +121,7 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
             a = MAX(a, eval);
 
             cout << "===MAX move [" << (int)m[i].square.y << "," << (int)m[i].square.x << "] ";
-            cout << "eval: " << "alpha: " << a << "beta: " << b << endl;
+            cout << "alpha: " << a << " beta: " << b << endl;
 
             //if opponent can make a move that will give max
             //a lower score than alpha, this branch is not
@@ -142,7 +142,7 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
             b = MIN(b, eval);
             
             cout << "===MIN move [" << (int)m[i].square.y << "," << (int)m[i].square.x << "] ";
-            cout << "eval: " << "alpha: " << a << "beta: " << b << endl;
+            cout << "alpha: " << a << " beta: " << b << endl;
 
             //if opponent can make a move that will give max
             //a lower score than alpha, this branch is not
@@ -171,11 +171,12 @@ bool Game::smartMove(){
     for(depth = 0; depth < depthLimit; depth++){
         int alpha = INT_MIN, beta = INT_MAX;
         for(int i = 0; i < legal.size(); i++){
-            cout << "Evaluating move [" << (int)legal[i].square.y << "," << (int)legal[i].square.x << "] eval: ";
+            cout << "Evaluating move [" << (int)legal[i].square.y << "," << (int)legal[i].square.x << "]" << endl;
             Board child = board;
             child.ApplyMove(legal[i]);
-            eval = alphabeta(child, depth, alpha, beta, true); //false since calling on min nodes?
-            cout << eval << endl;
+            child.NextPlayer(false);
+            eval = alphabeta(child, depth, alpha, beta, false);
+            cout << "best eval: " << eval << endl;
             if(eval > alpha){ //TODO:randomize if equal
                 move = legal[i];
                 alpha = eval;

@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include "const.h"
 #include "board.h"
@@ -155,13 +156,12 @@ void Board::Print(vector<Board::Move> moves, bool computer){
         cout << (int)i << " |";
         for(int j = 0; j < BOARDSIZE; j++){
             bool potentialMove = false;
-            cout << " ";
             for(int k = 0; k < moves.size(); k++){
                 if(moves[k].square.y == i && moves[k].square.x == j){
                     if(computer)
-                        cout << GREEN << (int)board[i][j] << RESET << " ";
+                        cout << GREEN << setw(2) << (int)board[i][j] << RESET << " ";
                     else{
-                        cout << YELLOW << k << RESET << " ";
+                        cout << YELLOW << setw(2) << k << RESET << " ";
                     }
                     potentialMove = true;
                 }
@@ -171,7 +171,7 @@ void Board::Print(vector<Board::Move> moves, bool computer){
                     cout << RED;
                 else if(board[i][j] == BLACK)
                     cout << BLUE;
-                cout << (int)board[i][j] << RESET << " ";
+                cout << setw(2) << (int)board[i][j] << RESET << " ";
             }
         }
         cout << "|" << endl;
