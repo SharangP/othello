@@ -56,10 +56,10 @@ Board::Board(){
     }
 
     //initialize starting pieces
-    board[4][3] = WHITE;
-    board[3][4] = WHITE;
-    board[3][3] = BLACK;
-    board[4][4] = BLACK;
+    board[4][3] = BLACK;
+    board[3][4] = BLACK;
+    board[3][3] = WHITE;
+    board[4][4] = WHITE;
 
     currentPlayer = BLACK;
     playerPassed = false;
