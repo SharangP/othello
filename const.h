@@ -9,6 +9,8 @@
 #define NUMMODES 4
 #define NUMDIRECTIONS 2
 
+#define TIMECUTOFF 0.9
+
 #define RESET   "\033[0m"
 #define RED     "\033[31m"
 #define GREEN   "\033[32m"

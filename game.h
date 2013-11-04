@@ -5,6 +5,7 @@
 #ifndef _GAME_H_
 #define _GAME_H_
 
+#include <time.h>
 #include "board.h"
 #include "const.h"
 
@@ -27,6 +28,8 @@ private:
     Board board;
     bool humanPlayer[3];
     int timeLimit;
+    clock_t startTime;
+    bool timeout;
 };
 
 #endif //_GAME_H_

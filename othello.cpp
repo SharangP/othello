@@ -1,7 +1,7 @@
 /*************************
  * Othello
  *
- * An Othello AI that implements a simple A* minimax search
+ * An Othello AI that implements a minimax A* search
  * using alpha/beta pruning
  *
  * Sharang Phadke
@@ -10,7 +10,6 @@
 
 #include <iostream>
 #include "game.h"
-#include "const.h"
 
 using namespace std;
 
