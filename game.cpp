@@ -124,12 +124,12 @@ int Game::heuristic(Board b){
         : WHITE;
 
     //set weights of heuristic parameters
-    int pW = 3*(b.score[maxPlayer]+b.score[opponent]);
+    int pW = 2*(b.score[maxPlayer]+b.score[opponent]);
     int cW = 5000;
-    int pcW = 3000;
-    int fW = 100;
-    int eW = 200;
-    int mW = 2*(100-(b.score[maxPlayer]+b.score[opponent]));
+    int pcW = 2000;
+    int fW = 200;
+    int eW = 50;
+    int mW = 10*(100-(b.score[maxPlayer]+b.score[opponent]));
 
     //piece count
     piececount = (100.0*b.score[maxPlayer])/(b.score[maxPlayer] + b.score[opponent]);
@@ -265,6 +265,7 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
 //  returns false if game in terminal state
 bool Game::smartMove(){
     int depth, eval, moveNum;
+    int depthLimit = NUMSQUARES - (board.score[BLACK] + board.score[WHITE]);
     Board::Move move, bestMove;
     
     startTime = clock();
@@ -280,7 +281,7 @@ bool Game::smartMove(){
 
     //increment depth of search until time runs out
     //look for the move with the MAX evaluation
-    for(depth = 0; (((float)(clock()-startTime))/CLOCKS_PER_SEC < timeLimit/2.0) && depth < NUMSQUARES; depth++){
+    for(depth = 0; (((float)(clock()-startTime))/CLOCKS_PER_SEC < timeLimit/2.0) && depth < depthLimit; depth++){
         int alpha = INT_MIN, beta = INT_MAX, randMove = 1;
         timeout = false; //reset timeout
 
