@@ -264,7 +264,7 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
 //  intelligent move selection using alpha beta tree search
 //  returns false if game in terminal state
 bool Game::smartMove(){
-    int depth, eval;
+    int depth, eval, moveNum;
     Board::Move move, bestMove;
     
     startTime = clock();
@@ -296,17 +296,21 @@ bool Game::smartMove(){
 
             if(eval > alpha){
                 move = legal[i];
+                moveNum = i;
                 alpha = eval;
             }
             else if(eval == alpha){
                 //use the new move instead of the existing one with uniform probabilty
-                if(((rand() % randMove++)-1) == 0)
+                if(((rand() % randMove++)-1) == 0){
                     move = legal[i];
+                    moveNum = i;
+                }
             }
         }
         bestMove = move;
     }
-
+    cout << "Searched to depth: " << depth << " in " << ((float)(clock()-startTime))/CLOCKS_PER_SEC << " seconds" << endl;
+    cout << "Computer chose move " << moveNum << endl; 
     board.Print(vector<Board::Move>(1,move), true);
     board.ApplyMove(move);
     return board.NextPlayer(false);
