@@ -115,36 +115,33 @@ void Game::Setup(int gameType){
 //  Kartik Kukreja, New Delhi, India
 //  {http://kartikkukreja.wordpress.com/2013/03/30/heuristic-function-for-reversiothello/}
 int Game::heuristic(Board b){
-    double piececount, corners, edges, frontier, mobility;
+    double piececount, corners, potentialCorners, edges, frontier, mobility;
     int mine, opp;
 
-    int opponent = (b.currentPlayer == WHITE)
+    int opponent = (maxPlayer == WHITE)
         ? BLACK
         : WHITE;
 
     //set weights of heuristic parameters
-    int pW = 3*(b.score[b.currentPlayer]+b.score[opponent]);
+    int pW = 3*(b.score[maxPlayer]+b.score[opponent]);
     int cW = 5000;
+    int pcW = 3000;
     int fW = 0;
-    int eW = 100;
-    int mW = 2*(100-(b.score[b.currentPlayer]+b.score[opponent]));
+    int eW = 200;
+    int mW = 2*(100-(b.score[maxPlayer]+b.score[opponent]));
 
     //piece count
-    piececount = (b.score[b.currentPlayer] > b.score[opponent])
-        ? (100.0*b.score[b.currentPlayer])/(b.score[b.currentPlayer] + b.score[opponent])
-        : (b.score[b.currentPlayer] < b.score[opponent])
-        ? -(100.0*b.score[opponent])/(b.score[b.currentPlayer] + b.score[opponent])
-        : 0;
+    piececount = (100.0*b.score[maxPlayer])/(b.score[maxPlayer] + b.score[opponent]);
     
     //corners
     mine = 0, opp = 0;
-    if(b.board[0][0] == b.currentPlayer) mine++;
+    if(b.board[0][0] == maxPlayer) mine++;
     else if(b.board[0][0] == opponent) opp++;
-    if(b.board[0][7] == b.currentPlayer) mine++;
+    if(b.board[0][7] == maxPlayer) mine++;
     else if(b.board[0][7] == opponent) opp++;
-    if(b.board[7][0] == b.currentPlayer) mine++;
+    if(b.board[7][0] == maxPlayer) mine++;
     else if(b.board[7][0] == opponent) opp++;
-    if(b.board[7][7] == b.currentPlayer) mine++;
+    if(b.board[7][7] == maxPlayer) mine++;
     else if(b.board[7][7] == opponent) opp++;
     corners = 25.0*(mine - opp);
 
@@ -154,28 +151,36 @@ int Game::heuristic(Board b){
     for(int i = 0; i < BOARDSIZE; i++){
         for(int j = 0; j < BOARDSIZE; j++){
             if(i == 0 || i == BOARDSIZE-1 || j == 0 || j == BOARDSIZE-1){
-                if(b.board[i][j] == b.currentPlayer) myEdges++;
+                if(b.board[i][j] == maxPlayer) myEdges++;
                 else if(b.board[i][j] == opponent) oppEdges++;
             }
             //frontier check
         }
     }
-    edges = (myEdges > oppEdges)
-        ? 100.0*myEdges/(myEdges + oppEdges)
-        : (myEdges < oppEdges)
-        ? -100.0*oppEdges/(myEdges + oppEdges)
-        : 0;
+    edges = 100.0*myEdges/(myEdges + oppEdges);
 
     //mobility
-    mine = board.LegalMoves(b.currentPlayer).size();
-    opp = board.LegalMoves(opponent).size(); //TODO: check whether opponent can take corner
-    mobility = (mine > opp)
-        ? 100.0*mine/(mine + opp)
-        : (mine < opp)
-        ? -100.0*opp/(mine + opp)
-        : 0;
+    vector<Board::Move> myLegal = board.LegalMoves(maxPlayer);
+    vector<Board::Move> oppLegal = board.LegalMoves(opponent);
+    mobility = 100.0*myLegal.size()/(myLegal.size() + oppLegal.size());
+    
+    //potential corners (pseudo-expand node)
+    mine = 0, opp = 0;
+    //for(int i = 0; i < myLegal.size(); i++){
+    //    if(myLegal[i].square.y == 0 && myLegal[i].square.x == 0) mine++;
+    //    else if(myLegal[i].square.y == 0 && myLegal[i].square.x == BOARDSIZE-1) mine++;
+    //    else if(myLegal[i].square.y == BOARDSIZE-1 && myLegal[i].square.x == 0) mine++;
+    //    else if(myLegal[i].square.y == BOARDSIZE-1 && myLegal[i].square.x == BOARDSIZE-1) mine++;
+    //}
+    for(int i = 0; i < oppLegal.size(); i++){
+        if(oppLegal[i].square.y == 0 && oppLegal[i].square.x == 0) opp++;
+        else if(oppLegal[i].square.y == 0 && oppLegal[i].square.x == (BOARDSIZE-1)) opp++;
+        else if(oppLegal[i].square.y == (BOARDSIZE-1) && oppLegal[i].square.x == 0) opp++;
+        else if(oppLegal[i].square.y == (BOARDSIZE-1) && oppLegal[i].square.x == (BOARDSIZE-1)) opp++;
+    }
+    potentialCorners = -25.0*opp;
 
-    return pW*piececount + cW*corners + eW*edges + fW*frontier + mW*mobility;
+    return pW*piececount + cW*corners + pcW*potentialCorners+ eW*edges + fW*frontier + mW*mobility;
 }
 
 
@@ -187,7 +192,7 @@ int Game::heuristic(Board b){
 int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer){
     int a = alpha, b = beta, msize;
 
-    //do a quick check on depth and time limit
+    //do a quick check on time limit and depth
     if((((float)(clock()-startTime))/CLOCKS_PER_SEC) > TIMECUTOFF*timeLimit){
         timeout = true;
         return heuristic(board);
@@ -203,7 +208,7 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
     if(msize == 0){ //no legal moves
         if(board.TerminalState(true)){ //check terminal state
             Board child = board;
-            child.NextPlayer(false); //TODO: refactor nextplayer and terminalstate to be separate
+            child.NextPlayer(false);
             return heuristic(child);
         }
         else{ //if pass is only move, continue search with pass
@@ -216,17 +221,13 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
     if(maxPlayer){ //maximize alpha
         int v = INT_MIN;
         for(int i = 0; i < msize; i++){
-
             Board child = board;
             child.ApplyMove(m[i]);
             child.NextPlayer(false);
 
             int eval = alphabeta(child, depth, a, b, false);
             v = MAX(v, eval);
-
-            //cout << "===MAX move [" << (int)m[i].square.y << "," << (int)m[i].square.x << "] ";
-            //cout << "alpha: " << a << " beta: " << b << endl;
-
+            
             //if opponent can make a move that will give max
             //a lower score than alpha, this branch is not
             //worth exploring
@@ -239,7 +240,6 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
     else{ //minimize beta
         int v = INT_MAX;
         for(int i = 0; i < msize; i++){
-
             Board child = board;
             child.ApplyMove(m[i]);
             child.NextPlayer(false);
@@ -247,9 +247,6 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
             int eval = alphabeta(child, depth, a, b, true);
             v = MIN(v, eval);
             
-            //cout << "===MIN move [" << (int)m[i].square.y << "," << (int)m[i].square.x << "] ";
-            //cout << "alpha: " << a << " beta: " << b << endl;
-
             //if opponent can make a move that will give max
             //a lower score than alpha, this branch is not
             //worth exploring
@@ -266,31 +263,31 @@ int Game::alphabeta(Board board, int depth, int alpha, int beta, bool maxPlayer)
 //  intelligent move selection using alpha beta tree search
 //  returns false if game in terminal state
 bool Game::smartMove(){
-    startTime = clock();
-
     int depth, eval;
     Board::Move move, bestMove;
+    
+    startTime = clock();
+    maxPlayer = board.currentPlayer;
     
     //expand layer 1
     vector<Board::Move> legal = board.LegalMoves(board.currentPlayer);
 
-    if(legal.size() == 0) //if no legal moves, pass
+    if(legal.size() == 0){ //if no legal moves, pass
+        cout << "Computer had to pass :(" << endl;
         return board.NextPlayer(true);
+    }
 
     //increment depth of search until time runs out
     //look for the move with the MAX evaluation
-    for(depth = 0; ((float)(clock()-startTime))/CLOCKS_PER_SEC < timeLimit/2.0; depth++){
+    for(depth = 0; (((float)(clock()-startTime))/CLOCKS_PER_SEC < timeLimit/2.0) && depth < NUMSQUARES; depth++){
         int alpha = INT_MIN, beta = INT_MAX, randMove = 1;
         timeout = false; //reset timeout
 
-        for(int i = 0; i < legal.size(); i++){
-            
-            //cout << "Evaluating move [" << (int)legal[i].square.y << "," << (int)legal[i].square.x << "]" << endl;
+        for(int i = 0; i < legal.size(); i++){ //maximize alpha
             Board child = board;
             child.ApplyMove(legal[i]);
             child.NextPlayer(false);
             eval = alphabeta(child, depth, alpha, beta, false);
-            //cout << "best eval: " << eval << endl;
 
             //if this depth timed out, use the best move from the previous depth
             if(timeout)
@@ -307,7 +304,6 @@ bool Game::smartMove(){
             }
         }
         bestMove = move;
-        cout << "time for evaluation of depth " << depth << ": " << ((float)(clock()-startTime))/CLOCKS_PER_SEC << " seconds" << endl;
     }
 
     board.Print(vector<Board::Move>(1,move), true);

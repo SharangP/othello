@@ -26,6 +26,7 @@ private:
     bool randomMove();
 
     Board board;
+    int maxPlayer;
     bool humanPlayer[3];
     int timeLimit;
     clock_t startTime;
