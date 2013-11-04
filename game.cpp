@@ -108,7 +108,8 @@ void Game::Setup(int gameType){
 
 //int Game::heuristic(Board b)
 //  heuristic evaluation of board state
-//  accounts for number of pieces of each color, corner pieces,
+//  accounts for number of pieces of each color, corners,
+//  potential corners (that the opponent can capture),
 //  frontier pieces, mobility, and edges
 //
 //  reference:
@@ -126,7 +127,7 @@ int Game::heuristic(Board b){
     int pW = 3*(b.score[maxPlayer]+b.score[opponent]);
     int cW = 5000;
     int pcW = 3000;
-    int fW = 0;
+    int fW = 100;
     int eW = 200;
     int mW = 2*(100-(b.score[maxPlayer]+b.score[opponent]));
 
@@ -154,10 +155,16 @@ int Game::heuristic(Board b){
                 if(b.board[i][j] == maxPlayer) myEdges++;
                 else if(b.board[i][j] == opponent) oppEdges++;
             }
-            //frontier check
+            else if(b.board[i][j] != '0'){
+                if(b.OnFrontier(i, j)){
+                    if(b.board[i][j] == maxPlayer) myFrontier++;
+                    else if(b.board[i][j] == opponent) oppFrontier++;
+                }
+            }
         }
     }
     edges = 100.0*myEdges/(myEdges + oppEdges);
+    frontier = -100*(myFrontier - oppFrontier); //frontier pieces are bad!
 
     //mobility
     vector<Board::Move> myLegal = board.LegalMoves(maxPlayer);
@@ -165,13 +172,7 @@ int Game::heuristic(Board b){
     mobility = 100.0*myLegal.size()/(myLegal.size() + oppLegal.size());
     
     //potential corners (pseudo-expand node)
-    mine = 0, opp = 0;
-    //for(int i = 0; i < myLegal.size(); i++){
-    //    if(myLegal[i].square.y == 0 && myLegal[i].square.x == 0) mine++;
-    //    else if(myLegal[i].square.y == 0 && myLegal[i].square.x == BOARDSIZE-1) mine++;
-    //    else if(myLegal[i].square.y == BOARDSIZE-1 && myLegal[i].square.x == 0) mine++;
-    //    else if(myLegal[i].square.y == BOARDSIZE-1 && myLegal[i].square.x == BOARDSIZE-1) mine++;
-    //}
+    opp = 0;
     for(int i = 0; i < oppLegal.size(); i++){
         if(oppLegal[i].square.y == 0 && oppLegal[i].square.x == 0) opp++;
         else if(oppLegal[i].square.y == 0 && oppLegal[i].square.x == (BOARDSIZE-1)) opp++;

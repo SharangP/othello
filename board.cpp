@@ -179,6 +179,26 @@ void Board::Print(vector<Board::Move> moves, bool computer){
 }
 
 
+//bool Board::OnFrontier(int y, int x)
+//  checks whether a piece is on the frontier
+bool Board::OnFrontier(int y, int x){
+    if(board[y][x] == '0')
+        return false;
+    for(int n = 0; n < NUMMODES; n++){
+        int mode = iterateModes[n];
+        for(int m = 0; m < NUMDIRECTIONS; m++){
+            int direction = iterateDirections[m];
+            char Y = y, X = x;
+            iterate(Y, X, mode, direction);
+            if(onBoard(Y, X))
+                if(board[Y][X] != '0')
+                    return true;
+        }
+    }
+    return false;
+}
+
+
 //bool Board::TerminalState(bool currentPlayerPass)
 //  check whether the game is in an end state
 bool Board::TerminalState(bool currentPlayerPass){
@@ -252,22 +272,8 @@ vector<Board::Move> Board::LegalMoves(int player){
                     if((board[y][x] == player) || (board[y][x] == 0))
                         continue;
 
-                    // cout << "this might be a valid move: " << (int)i << "," << (int)j << endl;
-
-                    // cout << "-----begining iterate for loop-----" << endl;
-                    // cout << "flip size: " << move.flips.size() << endl;
-                    // cout << "mode: " << mode << " direction: " << direction << endl;
-                    // cout << "-----------------------------------" << endl;
-
                     for(y, x; onBoard(y, x); iterate(y, x, mode, direction)){
                         if(board[y][x] == player){
-
-                            // cout << "\t----------IF----------" << endl;
-                            // cout << "\tflip size: " << move.flips.size() << endl;
-                            // cout << "\tinserted flip for potential move [" << i << "," << j << "]";
-                            // cout << " y: " << (int)y << " x: " << (int)x << endl;
-                            // cout << "\t---------ENDIF--------" << endl;
-
                             //mark move as valid and append trace to flips vector
                             move.valid = true;
                             move.flips.insert(move.flips.end(), trace.begin(), trace.end());
@@ -276,22 +282,13 @@ vector<Board::Move> Board::LegalMoves(int player){
                         else if(board[y][x] == 0)
                             break;
                         else{
-                            
-                            // cout << "\t---------ELSE---------" << endl;
-                            // cout << "\tinserted flip for potential move [" << i << "," << j << "]";
-                            // cout << " y: " << (int)y << " x: " << (int)x << endl;
-                            // cout << "\t---------ENDELSE---------" << endl;
-                            
                             trace.push_back(Board::Square(y, x)); //keep track of potential flips
                         }
                     }
                 }
             }
-            if(move.valid){
+            if(move.valid)
                 moves.push_back(move);
-                // cout << "====PUSHED MOVE: " << (int)move.square.y << "," << (int)move.square.x;
-                // cout << " with flips size: " << move.flips.size() << endl;
-            }
         }
     }
     return moves;

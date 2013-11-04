@@ -33,6 +33,7 @@ public:
     Board(Board &b);
     Board(char boardState[8][8], int currentPlayer);
     void Print(vector<Board::Move> moves = vector<Board::Move>(), bool computer = false);
+    bool OnFrontier(int y, int x);
     bool TerminalState(bool currentPlayerPass);
     bool NextPlayer(bool currentPlayerPass);
     void ApplyMove(Board::Move move);
